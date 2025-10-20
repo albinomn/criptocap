@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { cryptoCache } from "../services/cryptoCache";
+import { API_TOKEN } from "../utils/environment";
 
 interface PriceUpdate {
   [key: string]: string;
@@ -20,9 +21,17 @@ const ASSET_ID_MAP: Record<string, string> = {
 export function useCryptoPrices(
   customAssetIds: string[] = []
 ): UseCryptoPricesResult {
-  const defaultAssetIds = ['bitcoin', 'ethereum', 'binance-coin', 'cardano', 'solana']
+  const defaultAssetIds = [
+    "bitcoin",
+    "ethereum",
+    "binance-coin",
+    "cardano",
+    "solana",
+  ];
   const allAssetIds = [...defaultAssetIds, ...customAssetIds];
-  const WS_URL = `wss://ws.coincap.io/prices?assets=${allAssetIds.join(",")}`;
+  const WS_URL = `wss://ws.coincap.io/prices?assets=${allAssetIds.join(
+    ","
+  )}&apiKey=${API_TOKEN}`;
   const [prices, setPrices] = useState<PriceUpdate>({});
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,13 +87,21 @@ export function useCryptoPrices(
               const value = data[key];
 
               // Verifica se o valor é válido
-              if (value === null || value === undefined || value === 'null' || value === 'undefined') {
+              if (
+                value === null ||
+                value === undefined ||
+                value === "null" ||
+                value === "undefined"
+              ) {
                 // Incrementa contador de erros para este asset
-                errorCountRef.current[normalizedKey] = (errorCountRef.current[normalizedKey] || 0) + 1;
+                errorCountRef.current[normalizedKey] =
+                  (errorCountRef.current[normalizedKey] || 0) + 1;
 
                 // Se errou 3 vezes seguidas, marca como inválido
                 if (errorCountRef.current[normalizedKey] >= 3) {
-                  console.warn(`Asset ${normalizedKey} marked as invalid after 3 consecutive errors`);
+                  console.warn(
+                    `Asset ${normalizedKey} marked as invalid after 3 consecutive errors`
+                  );
                   invalidAssetsList.push(normalizedKey);
                 }
                 return;
@@ -105,7 +122,9 @@ export function useCryptoPrices(
             });
 
             if (invalidAssetsList.length > 0) {
-              setInvalidAssets((prev) => [...new Set([...prev, ...invalidAssetsList])]);
+              setInvalidAssets((prev) => [
+                ...new Set([...prev, ...invalidAssetsList]),
+              ]);
             }
 
             setPrices((prevPrices) => ({
