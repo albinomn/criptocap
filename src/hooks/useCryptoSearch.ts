@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
-
-const API_TOKEN =
-  "f673cb75d3d791afcc26853981a04dae4d8789190324fc735f6f10e42d1b6842";
+import { API_TOKEN } from "../utils/environment";
 
 export interface CoinCapAsset {
   id: string;
@@ -32,7 +30,7 @@ export function useCryptoSearch() {
 
   const searchCrypto = useCallback(
     async (symbol: string, limit: number = 10): Promise<CoinCapAsset[]> => {
-      console.log('useCryptoSearch: searching for', symbol, 'limit:', limit);
+      console.log("useCryptoSearch: searching for", symbol, "limit:", limit);
 
       if (!symbol || symbol.length < 1) {
         setResult({ data: [], loading: false, error: null });
@@ -43,7 +41,7 @@ export function useCryptoSearch() {
 
       try {
         const url = `https://rest.coincap.io/v3/assets?search=${symbol}&limit=${limit}`;
-        console.log('useCryptoSearch: fetching', url);
+        console.log("useCryptoSearch: fetching", url);
 
         const response = await fetch(url, {
           headers: {
@@ -52,11 +50,11 @@ export function useCryptoSearch() {
           },
         });
 
-        console.log('useCryptoSearch: response status', response.status);
+        console.log("useCryptoSearch: response status", response.status);
 
         if (!response.ok) {
           const errorMessage = "Erro ao buscar criptomoeda";
-          console.error('useCryptoSearch: API error', response.status);
+          console.error("useCryptoSearch: API error", response.status);
           setResult({ data: [], loading: false, error: errorMessage });
           return [];
         }
@@ -64,7 +62,7 @@ export function useCryptoSearch() {
         const data = await response.json();
         const assets: CoinCapAsset[] = data.data;
 
-        console.log('useCryptoSearch: found', assets?.length || 0, 'results');
+        console.log("useCryptoSearch: found", assets?.length || 0, "results");
 
         // Verifica se encontrou algum resultado
         if (!assets || assets.length === 0) {
